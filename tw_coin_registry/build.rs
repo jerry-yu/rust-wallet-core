@@ -87,7 +87,6 @@ fn generate_and_write_coin_type(coins: &[CoinItem]) {
 fn main() {
     let registry_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
         .join("..")
-        .join("..")
         .join("registry.json");
     let registry_path_str = registry_path.to_str().unwrap();
 

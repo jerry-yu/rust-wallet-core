@@ -16,7 +16,7 @@ type RegistryMap = HashMap<CoinType, CoinItem>;
 
 /// cbindgen:ignore
 pub const REGISTRY_JSON: &str =
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../registry.json"));
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../registry.json"));
 
 lazy_static! {
     static ref REGISTRY: RegistryMap = parse_registry_json();
