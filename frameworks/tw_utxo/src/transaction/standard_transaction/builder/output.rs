@@ -2,7 +2,7 @@ use super::TransactionOutput;
 use crate::{
     script::{standard_script::conditions, Script},
     transaction::{
-        asset::brc20::{BRC20TransferInscription, Brc20Ticker},
+        asset::brc20::{BRC20MintInscription, BRC20TransferInscription, Brc20Ticker},
         transaction_parts::Amount,
     },
 };
@@ -134,6 +134,27 @@ impl OutputBuilder {
         let transfer = BRC20TransferInscription::new(&pubkey_data, &ticker, &value)?;
 
         let merkle_root: H256 = transfer
+            .spend_info
+            .merkle_root()
+            .or_tw_err(SigningErrorType::Error_internal)
+            .context("No merkle root of the BRC20 Transfer spend info")?
+            .to_byte_array()
+            .into();
+
+        Ok(self.p2tr_script_path(pubkey, merkle_root))
+    }
+
+    pub fn brc20_mint(
+        self,
+        pubkey: &schnorr::PublicKey,
+        ticker: String,
+        value: String,
+    ) -> SigningResult<TransactionOutput> {
+        let pubkey_data = pubkey.compressed();
+        let ticker = Brc20Ticker::new(ticker)?;
+        let mint = BRC20MintInscription::new(&pubkey_data, &ticker, &value)?;
+
+        let merkle_root: H256 = mint
             .spend_info
             .merkle_root()
             .or_tw_err(SigningErrorType::Error_internal)
