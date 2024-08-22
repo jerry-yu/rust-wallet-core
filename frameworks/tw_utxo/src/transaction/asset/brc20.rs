@@ -49,6 +49,34 @@ impl BRC20TransferInscription {
     }
 }
 
+pub struct BRC20MintInscription(OrdinalsInscription);
+
+impl Deref for BRC20MintInscription {
+    type Target = OrdinalsInscription;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl BRC20MintInscription {
+    pub fn new(
+        recipient: &H264,
+        ticker: &Brc20Ticker,
+        value: &str,
+    ) -> SigningResult<BRC20TransferInscription> {
+        let payload = format!(
+            "{{\"p\":\"{protocol}\",\"op\":\"mint\",\"tick\":\"{ticker}\",\"amt\":\"{amt}\"}}",
+            protocol = BRC20_PROTOCOL_ID,
+            ticker = ticker.0,
+            amt = value
+        );
+
+        let inscription = OrdinalsInscription::new(BRC20_MIME, payload.as_bytes(), recipient)?;
+        Ok(BRC20TransferInscription(inscription))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -5,7 +5,7 @@ use crate::transaction::UtxoToSign;
 use crate::{
     script::{standard_script::conditions, Script, Witness},
     signing_mode::SigningMethod,
-    transaction::asset::brc20::{BRC20TransferInscription, Brc20Ticker},
+    transaction::asset::brc20::{BRC20MintInscription, BRC20TransferInscription, Brc20Ticker},
     transaction::transaction_parts::{Amount, OutPoint},
 };
 use bitcoin::hashes::Hash;
@@ -340,6 +340,28 @@ impl UtxoBuilder {
 
         let transfer_payload = Script::from(transfer.script.to_bytes());
         self.p2tr_script_path(pubkey, transfer_payload, control_block.serialize())
+    }
+
+    pub fn brc20_mint(
+        self,
+        pubkey: &schnorr::PublicKey,
+        ticker: String,
+        value: String,
+    ) -> SigningResult<(TransactionInput, UtxoToSign)> {
+        let ticker = Brc20Ticker::new(ticker).unwrap();
+        let mint = BRC20MintInscription::new(&pubkey.compressed(), &ticker, &value).unwrap();
+
+        let control_block = mint
+            .spend_info
+            .control_block(&(
+                mint.script.to_owned(),
+                bitcoin::taproot::LeafVersion::TapScript,
+            ))
+            .or_tw_err(SigningErrorType::Error_internal)
+            .context("'TaprootSpendInfo::control_block' is None")?;
+
+        let mint_payload = Script::from(mint.script.to_bytes());
+        self.p2tr_script_path(pubkey, mint_payload, control_block.serialize())
     }
 }
 
