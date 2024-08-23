@@ -9,10 +9,10 @@ pub struct Brc20Ticker(String);
 impl Brc20Ticker {
     pub fn new(string: String) -> SigningResult<Self> {
         // Brc20Ticker must be a 4-letter identifier.
-        if string.len() != 4 {
-            return SigningError::err(SigningErrorType::Error_invalid_params)
-                .context("BRC20 ticker must be exactly 4 bytes length");
-        }
+        // if string.len() != 4 {
+        //     return SigningError::err(SigningErrorType::Error_invalid_params)
+        //         .context("BRC20 ticker must be exactly 4 bytes length");
+        // }
 
         Ok(Brc20Ticker(string))
     }
