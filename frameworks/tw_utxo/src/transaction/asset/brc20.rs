@@ -64,7 +64,7 @@ impl BRC20MintInscription {
         recipient: &H264,
         ticker: &Brc20Ticker,
         value: &str,
-    ) -> SigningResult<BRC20TransferInscription> {
+    ) -> SigningResult<BRC20MintInscription> {
         let payload = format!(
             "{{\"p\":\"{protocol}\",\"op\":\"mint\",\"tick\":\"{ticker}\",\"amt\":\"{amt}\"}}",
             protocol = BRC20_PROTOCOL_ID,
@@ -73,7 +73,37 @@ impl BRC20MintInscription {
         );
 
         let inscription = OrdinalsInscription::new(BRC20_MIME, payload.as_bytes(), recipient)?;
-        Ok(BRC20TransferInscription(inscription))
+        Ok(BRC20MintInscription(inscription))
+    }
+}
+
+pub struct BRC20DeployInscription(OrdinalsInscription);
+
+impl Deref for BRC20DeployInscription {
+    type Target = OrdinalsInscription;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl BRC20DeployInscription {
+    pub fn new(
+        recipient: &H264,
+        ticker: &Brc20Ticker,
+        max: &str,
+        lim: &str,
+    ) -> SigningResult<BRC20DeployInscription> {
+        let payload = format!(
+            "{{\"p\":\"{protocol}\",\"op\":\"deploy\",\"tick\":\"{ticker}\",\"max\":\"{max}\",\"lim\":\"{lim}\"}}",
+            protocol = BRC20_PROTOCOL_ID,
+            ticker = ticker.0,
+            max = max,
+            lim = lim,
+        );
+
+        let inscription = OrdinalsInscription::new(BRC20_MIME, payload.as_bytes(), recipient)?;
+        Ok(BRC20DeployInscription(inscription))
     }
 }
 
